@@ -58,7 +58,7 @@ If you want to build your own Twitchberry Pi, here are the steps to follow.
 
 The default install of Raspbian should come with all the software you need installed. It is worth updating the software to ensure you have the latest versions installed.
 
-* From the terminal run
+* From the terminal run:
   
   ```sh
   sudo apt-get update
@@ -94,7 +94,7 @@ If you are screen sharing toe Raspberry Pi over VNC (you can find a guide on how
 
 Make sure you have something playing on the source device.
 
-* From the terminal run
+* From the terminal run:
   
   ```sh
   raspivid -f -t 0
@@ -108,7 +108,7 @@ You will see a full screen preview coming from the device connected to the HDMI 
 
 Make sure you have something playing on the source device. You will need an audio output device connected as well, such as headphones via the Raspberry Pis headphone socket, or HDMI audio if you have a monitor connected.
 
-* From the terminal run
+* From the terminal run:
 
   ```sh
   arecord -l
@@ -118,7 +118,7 @@ Make sure you have something playing on the source device. You will need an audi
 
   ![The output from arecord showing one device](./Images/ArecordOutput.png)
 
-* From the terminal run
+* From the terminal run:
 
   ```sh  
   arecord --device=plughw:1,0 -d 10 --rate=44000 test.wav
@@ -126,7 +126,7 @@ Make sure you have something playing on the source device. You will need an audi
 
   This will record 10 seconds of audio from the source device and save it as a file.
 
-* From the terminal run
+* From the terminal run:
 
   ```sh
   aplay test.wav
@@ -142,10 +142,46 @@ You will need a Twitch account, a streaming key and your nearest ingest endpoint
 
 * Head to [twitch.tv](https://www.twitch.tv) and sign up or sign in
 
-* Select your avatar in the top-right hand corner and select *Creator dashboard*.
+* Select your avatar in the top-right hand corner and select *Creator dashboard*
 
 * Select *SETTINGS -> Channel* to find your Primary Stream key. Copy this value using the **Copy** button.
   
   ![The stream key in the channel settings](./Images/StreamKey.png)
 
-### 
+### Stream to Twitch
+
+To stream audio and video to Twitch you will need to bring together a video stream captured using `raspivid` and an audio stream captured using `arecord`. Once these streams are combined, you can sed the output to Twitch.
+
+This repo contains a script to do this - `stream.sh`. Clone this repo and open a terminal at the directory you cloned to
+
+* From the terminal run:
+
+  ```sh
+  ./stream.sh <stream>
+  ```
+
+  Substitute `<stream>` with the right destination to stream to. This is made up from a combination of your the closest ingest endpoint and your stream key.
+
+  To build this destination:
+
+  * Take the value of the ingest endpoint - for example `rtmp://live-lhr.twitch.tv/app/{stream_key}`
+  
+  * Replace `{stream_key}` with your stream key
+  
+  * The end result will be something like `rtmp://live-lhr.twitch.tv/app/live_123456789_Rand0mNumb3r5`
+
+  For example, the command you would run would be:
+
+  ```sh
+  ./stream.sh rtmp://live-lhr.twitch.tv/app/live_123456789_Rand0mNumb3r5
+  ```
+
+* Head to [twitch.tv](https://www.twitch.tv) and sign in
+
+* Select your avatar in the top-right hand corner and select *Creator dashboard*
+
+* Start the video preview of your stream
+
+  ![The twitch live preview showing MineCraft running](./Images/MinecraftTwitchPreview.png)
+
+You may notice an offset between the audio and the video. This can be tweaked by editing the `stream.sh` file. The audio is offset using the `itsoffset` parameter sent to `ffmpeg`. The default value is `15.0`, which is 15 seconds and is based on my personal setup and testing. You can change this value to suit.
